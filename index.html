@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barbearia Shark</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -39,28 +41,16 @@
         }
 
         .bg-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    min-height: 100dvh;      /* viewport dinâmico: considera a barra do navegador */
-    height: 100dvh;          /* fallback seguro */
-    z-index: -2;
-    background-image: url(fundo.png);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    -webkit-background-size: cover;  /* compatibilidade com Safari antigo */
-}
-
-/* Fallback para navegadores que não suportam dvh */
-@supports not (height: 100dvh) {
-    .bg-wrapper {
-        min-height: 100vh;
-        height: 100vh;
-    }
-}
-        
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: url(fundo.png);
+            background-size: cover;
+            background-position: center;
+        }
 
         .bg-wrapper::before {
             content: '';
@@ -392,16 +382,23 @@
         }
 
         .team-avatar {
-            width: 80px;
-            height: 80px;
-            background: var(--bg-card-solid);
-            border: 2px solid var(--accent);
-            border-radius: 50%;
+            width: 100px;
+            height: 100px;
             margin: 0 auto 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.18), rgba(10, 22, 40, 0.95));
+        }
+
+        .team-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .team-name {
@@ -788,6 +785,24 @@
             color: var(--success);
         }
 
+        .admin-table tr.completed-row {
+            background: rgba(74, 222, 128, 0.08);
+        }
+
+        .admin-table tr.completed-row td {
+            color: #d1fae5;
+        }
+
+        .admin-table tr.completed-row .client-name {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .admin-table tr.completed-row .status {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
         .footer {
             background: rgba(10, 22, 40, 0.95);
             border-top: 1px solid var(--border);
@@ -1127,7 +1142,6 @@
             transform: translateX(0);
         }
 
-        /* Responsive adjustments */
         @media (max-width: 1024px) {
             .navbar {
                 padding: 14px 28px;
@@ -1578,18 +1592,74 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .client-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .client-table th {
+            background: var(--bg-card-solid);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .client-table td {
+            padding: 14px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .client-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .client-table .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+
+            .client-table th,
+            .client-table td {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bg-wrapper {
+                background-attachment: scroll;
+                background-position: center top;
+            }
+
+            .bg-wrapper::before {
+                background: linear-gradient(180deg, rgba(10, 22, 40, 0.95) 0%, rgba(10, 22, 40, 0.85) 50%, rgba(10, 22, 40, 0.75) 100%);
+                opacity: 0.6;
+            }
+        }
     </style>
     <base target="_blank">
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, onSnapshot, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-        // ═══════════════════════════════════════════════════════════════
-        // CONFIGURAÇÃO DO FIREBASE — PREENCHA AQUI
-        // ═══════════════════════════════════════════════════════════════
         const firebaseConfig = {
             apiKey: "AIzaSyDj-_Ckvg_PcJEnbUM0hKKD4_qChM54Eig",
             authDomain: "barbearia-shark-26f57.firebaseapp.com",
@@ -1598,13 +1668,10 @@
             messagingSenderId: "432010661214",
             appId: "1:432010661214:web:8a195ce0c7ca2ededf93cf"
         };
-        // ═══════════════════════════════════════════════════════════════
-
         try {
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
-            console.log('✅ Firebase conectado!');
             window._firebaseReady = true;
             window.dispatchEvent(new Event('firebaseReady'));
 
@@ -1621,10 +1688,10 @@
             window._getDoc = getDoc;
             window._updateDoc = updateDoc;
         } catch (e) {
-            console.log('⚠️ Firebase não configurado. Usando localStorage.');
             window._firebaseReady = false;
         }
     </script>
+    <base target="_blank">
     <base target="_blank">
 </head>
 
@@ -1632,13 +1699,15 @@
     <div class="bg-wrapper"></div>
     <nav class="navbar">
         <div class="logo">
-            <div class="logo-icon">🦈</div>
+            <img src="favicon.ico" alt="Logo"
+                style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);">
             BARBEARIA <span>SHARK</span>
         </div>
         <ul class="nav-links">
             <li><a href="#servicos">Serviços</a></li>
             <li><a href="#equipe">Equipe</a></li>
             <li><a href="#agendar">Agendar</a></li>
+            <li><a href="#meus-agendamentos">Meus Agendamentos</a></li>
         </ul>
         <button class="btn-primary" onclick="scrollToSection('agendar')">Agendar Horário</button>
     </nav>
@@ -1662,7 +1731,7 @@
             </div>
             <div class="services-container">
                 <div class="service-category">
-                    <div class="service-category-title">✂ Barba</div>
+                    <div class="service-category-title">Barba</div>
                     <div class="service-item">
                         <div class="service-info">
                             <h4>Barba</h4>
@@ -1672,7 +1741,7 @@
                     </div>
                 </div>
                 <div class="service-category">
-                    <div class="service-category-title">✂ Cortes</div>
+                    <div class="service-category-title">Cortes</div>
                     <div class="service-item">
                         <div class="service-info">
                             <h4>Corte</h4>
@@ -1689,7 +1758,7 @@
                     </div>
                 </div>
                 <div class="service-category">
-                    <div class="service-category-title">✂ Acabamentos</div>
+                    <div class="service-category-title">Acabamentos</div>
                     <div class="service-item">
                         <div class="service-info">
                             <h4>Sobrancelha</h4>
@@ -1706,7 +1775,7 @@
                     </div>
                 </div>
                 <div class="service-category">
-                    <div class="service-category-title">✂ Tratamentos</div>
+                    <div class="service-category-title">Tratamentos</div>
                     <div class="service-item">
                         <div class="service-info">
                             <h4>Hidratação Capilar</h4>
@@ -1731,7 +1800,9 @@
             </div>
             <div class="team-grid">
                 <div class="team-card">
-                    <div class="team-avatar">💈</div>
+                    <div class="team-avatar">
+                        <img class="team-photo" src="hariel.png" alt="Foto do barbeiro Haryew">
+                    </div>
                     <div class="team-name">HARYEW</div>
                     <div class="team-role">Barbeiro</div>
                 </div>
@@ -1859,22 +1930,38 @@
                                 AGENDAMENTO</button>
                         </div>
                         <div class="booking-step">
-                            <div class="step-number">MEUS AGENDAMENTOS</div>
-                            <div class="form-group">
-                                <label>Telefone cadastrado</label>
-                                <input type="tel" id="lookup-phone" placeholder="(00) 00000-0000"
-                                    oninput="formatPhone(this)">
+                            <div class="step-number">OPÇÕES FINAIS</div>
+                            <div class="summary-box"
+                                style="margin-top: 0; color: var(--text-secondary); font-size: 14px;">
+                                <p>Depois de confirmar, você poderá copiar a chave Pix do barbeiro.</p>
                             </div>
-                            <button class="btn-outline" type="button" onclick="searchClientAppointments()">Buscar
-                                agendamentos</button>
-                            <div id="client-appointments-list" class="summary-box"
-                                style="margin-top: 16px; color: var(--text-secondary); font-size: 14px; min-height: 60px;">
+                            <div class="action-buttons" id="pix-actions" style="display: none; margin-top: 12px;">
+                                <button class="action-button" type="button" onclick="copyBarberPix()">Copiar chave
+                                    Pix</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
     </div>
+    </section>
+    <section id="meus-agendamentos">
+        <div class="section-header">
+            <div class="section-label">Consulta</div>
+            <h2 class="section-title">MEUS AGENDAMENTOS</h2>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">Digite seu WhatsApp para ver seus
+                agendamentos e o status de cada um.</p>
+        </div>
+        <div class="booking-container" style="max-width: 600px; margin: 0 auto;">
+            <div class="form-group">
+                <label>WhatsApp / telefone</label>
+                <input type="tel" id="client-query-phone" placeholder="(00) 00000-0000"
+                    oninput="formatPhoneQuery(this)">
+            </div>
+            <button class="btn-primary" onclick="consultarAgendamentosCliente()" style="width: 100%;">Consultar
+                Agendamentos</button>
+            <div id="client-appointments-result" style="margin-top: 24px;"></div>
+        </div>
     </section>
     <footer class="footer">
         <div class="footer-grid">
@@ -1883,12 +1970,12 @@
                 <p>Barbearia de bairro com técnica clássica e atendimento por hora marcada.</p>
             </div>
             <div class="footer-info">
-                <div class="footer-info-item"><span>📍</span><span>Rua Alício Soares Pereira, 130 — Santo Antônio do
+                <div class="footer-info-item"><span></span><span>Rua Alício Soares Pereira, 130 — Santo Antônio do
                         Retiro</span></div>
-                <div class="footer-info-item"><span>📷</span><span><strong>@barbearia__shark</strong></span></div>
+                <div class="footer-info-item"><span></span><span><strong>@barbearia__shark</strong></span></div>
             </div>
             <div class="footer-social">
-                <div class="footer-info-item"><span>🕐</span><span>Seg–Sáb, 09h às 19h.<br>Domingos, na comunidade
+                <div class="footer-info-item"><span></span><span>Seg–Sáb, 09h às 19h.<br>Domingos, na comunidade
                         da Caroba.</span></div>
             </div>
         </div>
@@ -1899,7 +1986,6 @@
     </footer>
     </div>
 
-    <!-- Admin Panel -->
     <div class="admin-panel" id="admin-panel">
         <div class="admin-header">
             <div>
@@ -1907,18 +1993,17 @@
                 <h1>AGENDAMENTOS</h1>
             </div>
             <div class="admin-actions">
-                <button class="btn-outline" onclick="refreshAppointments()">🔄 Atualizar</button>
-                <button class="btn-primary" onclick="logout()">↪ Sair</button>
+                <button class="btn-outline" onclick="refreshAppointments()">Atualizar</button>
+                <button class="btn-primary" onclick="logout()">Sair</button>
             </div>
         </div>
 
-        <!-- Configurações de Notificação -->
         <div class="config-grid">
             <div class="config-box">
-                <h3>📱 Notificação por WhatsApp</h3>
+                <h3>Notificação por WhatsApp</h3>
                 <p>Quando um cliente faz agendamento, uma mensagem é enviada automaticamente para o WhatsApp do
                     barbeiro.</p>
-                <p><span class="highlight">Status:</span> <span id="whatsapp-status">⚠️ Número não configurado</span>
+                <p><span class="highlight">Status:</span> <span id="whatsapp-status">Número não configurado</span>
                 </p>
                 <p style="margin-top: 8px;">Para ativar, edite o arquivo e altere a linha:</p>
                 <p><code>const BARBER_WHATSAPP = "553899390267";</code></p>
@@ -1933,7 +2018,7 @@
                     não será redirecionado para o WhatsApp do barbeiro após confirmar o agendamento.</p>
                 <a href="#" class="btn-whatsapp" id="whatsapp-test-btn" style="margin-top: 12px; display: none;"
                     target="_blank">
-                    📱 Testar WhatsApp
+                    Testar WhatsApp
                 </a>
             </div>
         </div>
@@ -1965,7 +2050,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div class="modal-overlay" id="login-modal">
         <div class="modal">
             <h2>Área do Barbeiro</h2>
@@ -1980,9 +2064,8 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast">
-        <div class="toast-icon">✅</div>
+        <div class="toast-icon"></div>
         <div class="toast-content">
             <h4 id="toast-title">Sucesso!</h4>
             <p id="toast-message">Agendamento confirmado.</p>
@@ -2157,7 +2240,10 @@
             updateSummary();
             updateConfigStatus();
             document.getElementById('admin-table-body').addEventListener('click', handleAdminTableClick);
-            document.getElementById('client-appointments-list').addEventListener('click', handleClientAppointmentsClick);
+            const clientAppointmentsList = document.getElementById('client-appointments-list');
+            if (clientAppointmentsList) {
+                clientAppointmentsList.addEventListener('click', handleClientAppointmentsClick);
+            }
             if (isFirebaseReady()) {
                 listenAppointments(() => {
                     renderAdminTable();
@@ -2168,7 +2254,6 @@
                     renderAvailabilityEditor();
                 });
                 _firebaseInitialized = true;
-                console.log('🔄 Listeners em tempo real ativados!');
             }
         }
 
@@ -2276,10 +2361,14 @@
             checkFormValidity();
         }
 
+        function isAppointmentActive(appointment) {
+            return appointment && appointment.status !== 'Concluído';
+        }
+
         function getBookedTimesForDate(date) {
             if (!date) return [];
             const dateStr = formatDate(date);
-            return _appointmentsCache.filter(a => a.date === dateStr).map(a => a.time);
+            return _appointmentsCache.filter(a => a.date === dateStr && isAppointmentActive(a)).map(a => a.time);
         }
 
         function getAvailableTimesForDate(date) {
@@ -2317,46 +2406,28 @@
             return phone.replace(/\D/g, '');
         }
 
-        function searchClientAppointments() {
-            const phone = normalizePhone(document.getElementById('lookup-phone').value);
-            const container = document.getElementById('client-appointments-list');
-            if (!phone) {
-                container.innerHTML = '<div>Digite o telefone usado no agendamento.</div>';
-                return;
-            }
-            const appointments = _appointmentsCache.filter(a => normalizePhone(a.phone) === phone);
-            renderClientAppointments(appointments);
-        }
-
-        function renderClientAppointments(appointments) {
-            const container = document.getElementById('client-appointments-list');
-            if (appointments.length === 0) {
-                container.innerHTML = '<div>Nenhum agendamento encontrado com esse telefone.</div>';
-                return;
-            }
-            container.innerHTML = appointments.map(a => {
-                return '<div style="margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;">' +
-                    '<div><strong>' + a.name + '</strong> - ' + a.date + ' às ' + a.time + '</div>' +
-                    '<div style="margin: 8px 0; color: var(--text-secondary);">' + a.services + ' • R$ ' + a.total.toFixed(2).replace('.', ',') + '</div>' +
-                    '<div class="action-buttons"><button class="action-button" data-action="delete" data-id="' + a.id + '">Excluir</button></div>' +
-                    '</div>';
-            }).join('');
-        }
-
         async function deleteAppointment(id) {
             await deleteAppointmentFS(id);
             await getAppointmentsFS();
             renderAdminTable();
-            searchClientAppointments();
             renderTimeSlots();
             showToast('Agendamento excluído', 'O agendamento foi removido com sucesso.');
         }
 
         async function markAppointmentDone(id) {
-            await updateAppointmentStatusFS(id, 'Concluído');
+            const appointment = _appointmentsCache.find(a => a.id === id);
+            const nextStatus = appointment && appointment.status === 'Concluído' ? 'Confirmed' : 'Concluído';
+
+            await updateAppointmentStatusFS(id, nextStatus);
             await getAppointmentsFS();
             renderAdminTable();
-            showToast('Agendamento concluído', 'O barbeiro marcou este horário como concluído.');
+            renderTimeSlots();
+
+            if (nextStatus === 'Concluído') {
+                showToast('Agendamento concluído', 'Este horário ficou disponível para outro cliente.');
+            } else {
+                showToast('Agendamento reaberto', 'Este horário voltou a ficar reservado.');
+            }
         }
 
         function checkFormValidity() {
@@ -2434,23 +2505,23 @@
             renderTimeSlots();
             updateSummary();
             checkFormValidity();
+            document.getElementById('pix-actions').style.display = 'flex';
 
             showToast('Agendamento Confirmado!', name + ', seu horário foi marcado para ' + appointment.date + ' às ' + appointment.time + '.');
         }
 
         function sendWhatsAppNotification(appointment) {
             if (!BARBER_WHATSAPP || !whatsappEnabled) {
-                console.log('📱 WhatsApp: notificação desativada ou número não configurado.');
                 return;
             }
             const message = encodeURIComponent(
-                '🦈 *NOVO AGENDAMENTO — BARBEARIA SHARK*\n\n' +
-                '👤 *Cliente:* ' + appointment.name + '\n' +
-                '📞 *Contato:* ' + appointment.phone + '\n' +
-                '📅 *Data:* ' + appointment.date + '\n' +
-                '⏰ *Horário:* ' + appointment.time + '\n' +
-                '✂️ *Serviços:* ' + appointment.services + '\n' +
-                '💰 *Total:* R$ ' + appointment.total.toFixed(2).replace('.', ',') + '\n\n' +
+                'NOVO AGENDAMENTO — BARBEARIA SHARK\n\n' +
+                'Cliente: ' + appointment.name + '\n' +
+                'Contato: ' + appointment.phone + '\n' +
+                'Data: ' + appointment.date + '\n' +
+                'Horário: ' + appointment.time + '\n' +
+                'Serviços: ' + appointment.services + '\n' +
+                'Total: R$ ' + appointment.total.toFixed(2).replace('.', ',') + '\n\n' +
                 'Agendado em: ' + new Date().toLocaleString('pt-BR')
             );
             window.open('https://wa.me/' + BARBER_WHATSAPP + '?text=' + message, '_blank');
@@ -2598,19 +2669,19 @@
             if (waCheckbox) waCheckbox.checked = whatsappEnabled;
 
             if (!whatsappEnabled) {
-                waStatus.textContent = '⚠️ WhatsApp desativado pelo barbeiro';
+                waStatus.textContent = 'WhatsApp desativado pelo barbeiro';
                 waStatus.style.color = '#fbbf24';
                 waTestBtn.style.display = 'none';
                 return;
             }
 
             if (BARBER_WHATSAPP && BARBER_WHATSAPP.length >= 12) {
-                waStatus.textContent = '✅ Configurado (' + BARBER_WHATSAPP + ')';
+                waStatus.textContent = 'Configurado (' + BARBER_WHATSAPP + ')';
                 waStatus.style.color = 'var(--success)';
                 waTestBtn.style.display = 'inline-flex';
-                waTestBtn.href = 'https://wa.me/' + BARBER_WHATSAPP + '?text=' + encodeURIComponent('🦈 Teste de notificação da Barbearia Shark!');
+                waTestBtn.href = 'https://wa.me/' + BARBER_WHATSAPP + '?text=' + encodeURIComponent('Teste de notificação da Barbearia Shark!');
             } else {
-                waStatus.textContent = '⚠️ Número não configurado';
+                waStatus.textContent = 'Número não configurado';
                 waStatus.style.color = '#fbbf24';
                 waTestBtn.style.display = 'none';
             }
@@ -2624,11 +2695,12 @@
             const tbody = document.getElementById('admin-table-body');
             const appointments = _appointmentsCache;
             if (appointments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📋</div><p>Nenhum agendamento encontrado.</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">-</div><p>Nenhum agendamento encontrado.</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = appointments.slice().reverse().map(a => {
-                return '<tr>' +
+                const isDone = a.status === 'Concluído';
+                return '<tr class="' + (isDone ? 'completed-row' : '') + '">' +
                     '<td class="client-name">' + a.name + '</td>' +
                     '<td>' + a.phone + '</td>' +
                     '<td>' + a.date + '</td>' +
@@ -2637,8 +2709,7 @@
                     '<td style="color: var(--accent); font-weight: 600;">R$ ' + a.total.toFixed(2).replace('.', ',') + '</td>' +
                     '<td><span class="status ' + getStatusClass(a.status) + '">' + a.status + '</span></td>' +
                     '<td><div class="action-buttons">' +
-                    '<button class="action-button' + (a.status === 'Concluído' ? ' done' : '') + '" data-action="done" data-id="' + a.id + '">' + (a.status === 'Concluído' ? 'Concluído' : 'Marcar como feito') + '</button>' +
-                    '<button class="action-button" data-action="delete" data-id="' + a.id + '">Excluir</button>' +
+                    '<button class="action-button' + (isDone ? ' done' : '') + '" data-action="done" data-id="' + a.id + '">' + (isDone ? 'Concluído' : 'Marcar como feito') + '</button>' +
                     '</div></td>' +
                     '</tr>';
             }).join('');
@@ -2656,19 +2727,20 @@
             if (!id) return;
             if (button.dataset.action === 'done') {
                 markAppointmentDone(id);
-            } else if (button.dataset.action === 'delete') {
-                deleteAppointment(id);
             }
         }
 
         function handleClientAppointmentsClick(event) {
-            const button = event.target.closest('button[data-action]');
-            if (!button) return;
-            const id = button.dataset.id;
-            if (!id) return;
-            if (button.dataset.action === 'delete') {
-                deleteAppointment(id);
-            }
+            // Cliente só visualiza, não pode executar ações
+        }
+
+        function copyBarberPix() {
+            const pixKey = '38999390267';
+            navigator.clipboard.writeText(pixKey).then(() => {
+                showToast('Chave Pix copiada', 'A chave Pix do barbeiro foi copiada para a área de transferência.');
+            }).catch(() => {
+                showToast('Falha ao copiar', 'Não foi possível copiar a chave Pix. Copie manualmente.');
+            });
         }
 
         function showToast(title, message) {
@@ -2678,6 +2750,52 @@
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 4000);
         }
+
+        function formatPhoneQuery(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 10) {
+                input.value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+            } else if (value.length > 6) {
+                input.value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 6) + '-' + value.slice(6);
+            } else if (value.length > 2) {
+                input.value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+            } else if (value.length > 0) {
+                input.value = '(' + value;
+            }
+        }
+
+        async function consultarAgendamentosCliente() {
+            const phone = document.getElementById('client-query-phone').value.trim();
+            if (phone.length < 14) {
+                showToast('Telefone inválido', 'Digite um número de WhatsApp válido com DDD.');
+                return;
+            }
+            await getAppointmentsFS();
+            const userAppointments = _appointmentsCache.filter(a => a.phone === phone).sort((a, b) => {
+                const dateA = a.date.split('/').reverse().join('-') + 'T' + a.time;
+                const dateB = b.date.split('/').reverse().join('-') + 'T' + b.time;
+                return new Date(dateA) - new Date(dateB);
+            });
+            const container = document.getElementById('client-appointments-result');
+            if (userAppointments.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 40px 20px;"><div class="empty-state-icon">-</div><p>Nenhum agendamento encontrado para este número.</p></div>';
+                return;
+            }
+            container.innerHTML = '<table class="client-table"><thead><tr><th>Data</th><th>Horário</th><th>Serviços</th><th>Total</th><th>Status</th></tr></thead><tbody>' +
+                userAppointments.map(a => {
+                    const isDone = a.status === 'Concluído';
+                    return '<tr class="' + (isDone ? 'completed-row' : '') + '">' +
+                        '<td>' + a.date + '</td>' +
+                        '<td>' + a.time + '</td>' +
+                        '<td>' + a.services + '</td>' +
+                        '<td style="color: var(--accent); font-weight: 600;">R$ ' + a.total.toFixed(2).replace('.', ',') + '</td>' +
+                        '<td><span class="status ' + getStatusClass(a.status) + '">' + a.status + '</span></td>' +
+                        '</tr>';
+                }).join('') +
+                '</tbody></table>';
+        }
+
     </script>
 </body>
 
