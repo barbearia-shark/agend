@@ -2346,14 +2346,20 @@
         }
 
         function isAppointmentActive(appointment) {
-            return appointment && appointment.status !== 'Concluído';
+    if (!appointment || !appointment.status) return false;
+    const status = String(appointment.status).trim();
+    return status !== 'Concluído';
         }
+        
 
         function getBookedTimesForDate(date) {
-            if (!date) return [];
-            const dateStr = formatDate(date);
-            return _appointmentsCache.filter(a => a.date === dateStr && isAppointmentActive(a)).map(a => a.time);
+    if (!date) return [];
+    const dateStr = formatDate(date);
+    return _appointmentsCache
+        .filter(a => a.date === dateStr && isAppointmentActive(a))
+        .map(a => a.time);
         }
+        
 
         function getAvailableTimesForDate(date) {
             if (!date) return [];
@@ -2399,21 +2405,46 @@
         }
 
         async function markAppointmentDone(id) {
-            const appointment = _appointmentsCache.find(a => a.id === id);
-            const nextStatus = appointment && appointment.status === 'Concluído' ? 'Confirmed' : 'Concluído';
+    const appointment = _appointmentsCache.find(a => a.id === id);
+    if (!appointment) {
+        showToast('Erro', 'Agendamento não encontrado.');
+        return;
+    }
 
-            await updateAppointmentStatusFS(id, nextStatus);
-            await getAppointmentsFS();
-            renderAdminTable();
-            renderTimeSlots();
+    const isCurrentlyDone = appointment.status === 'Concluído';
+    const nextStatus = isCurrentlyDone ? 'Confirmed' : 'Concluído';
 
-            if (nextStatus === 'Concluído') {
-                showToast('Agendamento concluído', 'Este horário ficou disponível para outro cliente.');
-            } else {
-                showToast('Agendamento reaberto', 'Este horário voltou a ficar reservado.');
-            }
+    // 1. Atualiza no Firebase / localStorage
+    await updateAppointmentStatusFS(id, nextStatus);
+
+    // 2. Atualiza o cache LOCAL imediatamente (feedback instantâneo)
+    const idx = _appointmentsCache.findIndex(a => a.id === id);
+    if (idx !== -1) {
+        _appointmentsCache[idx].status = nextStatus;
+    }
+
+    // 3. Re-renderiza tudo na hora com o cache atualizado
+    renderAdminTable();
+    renderTimeSlots();
+    updateSummary();
+
+    // 4. Sincroniza com o servidor em background (garantia)
+    try {
+        await getAppointmentsFS();
+        renderAdminTable();
+        renderTimeSlots();
+        updateSummary();
+    } catch (e) {
+        console.warn('Sincronização falhou, usando cache local.', e);
+    }
+
+    if (nextStatus === 'Concluído') {
+        showToast('Agendamento concluído', 'Este horário ficou disponível para outro cliente.');
+    } else {
+        showToast('Agendamento reaberto', 'Este horário voltou a ficar reservado.');
+    }
         }
-
+        
         function checkFormValidity() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
@@ -2727,6 +2758,23 @@
             });
         }
 
+        // Sincroniza entre abas/janelas do navegador
+window.addEventListener('storage', function (e) {
+    if (e.key === 'barbearia_appointments') {
+        getAppointmentsFS().then(() => {
+            renderAdminTable();
+            renderTimeSlots();
+            updateSummary();
+        });
+    }
+    if (e.key === 'barbearia_availability') {
+        getAvailabilityFS().then(() => {
+            renderTimeSlots();
+            renderAvailabilityEditor();
+        });
+    }
+});
+        
         function showToast(title, message) {
             document.getElementById('toast-title').textContent = title;
             document.getElementById('toast-message').textContent = message;
